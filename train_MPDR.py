@@ -8,7 +8,7 @@ from utils import init_device, init_model, FakeLR, WarmUpCosineAnnealingLR
 from dataset import create_Env_dataloader
 
 def main(opt):
-    save_path = opt.root_dir + f'checkpoints/seed_{opt.seed}/{opt.mode}_Ns{opt.Ns}_epochs{opt.epochs}/'
+    save_path = opt.root_dir + f'checkpoints/samll_net/seed_{opt.seed}/{opt.mode}_Ns{opt.Ns}_epochs{opt.epochs}/'
 
     logger.info('=> PyTorch Version: {}'.format(torch.__version__), root=save_path)
     logger.info(opt, root=save_path)

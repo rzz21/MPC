@@ -9,7 +9,7 @@ from dataset import create_Env_dataloader
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 def main(opt):
-    save_path = opt.root_dir + f'checkpoints/seed_{opt.seed}/'
+    save_path = opt.root_dir + f'checkpoints/small_net/seed_{opt.seed}/'
 
     logger.info('=> PyTorch Version: {}'.format(torch.__version__), root=save_path)
     logger.info(opt, root=save_path)
