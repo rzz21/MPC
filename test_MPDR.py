@@ -8,7 +8,7 @@ from utils import init_device, init_model, FakeLR, WarmUpCosineAnnealingLR
 from dataset import create_Env_dataloader
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
-def main():
+def main(opt):
     save_path = opt.root_dir + f'checkpoints/seed_{opt.seed}/'
 
     logger.info('=> PyTorch Version: {}'.format(torch.__version__), root=save_path)
