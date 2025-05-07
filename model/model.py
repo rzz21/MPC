@@ -54,7 +54,7 @@ class MPDR(nn.Module):
             # ('res5', ResNet_Block(40, 80)),
             # ('res6', ResNet_Block(80, 80)),
             ('flatten', nn.Flatten()),
-            ('fc1', nn.Linear(w * h * 0, 160)),
+            ('fc1', nn.Linear(w * h * 40, 160)),
             ('relu1', nn.LeakyReLU(negative_slope=0.3, inplace=True)),
             ('fc2', nn.Linear(160, param_num * path_Num)),
             ('relu2', nn.LeakyReLU(negative_slope=0.3, inplace=True))
