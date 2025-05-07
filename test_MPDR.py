@@ -51,6 +51,10 @@ def main(opt):
     # LDA forward
     pred_nls = lda.predict(pred_paras_flat)
 
+    # Calculate accuracy
+    accuracy = (pred_nls == nls).sum() / len(nls)
+    logger.info(f'Prediction Accuracy: {accuracy:.4f}', root=save_path)
+
     # MPR forward
     results = MPRTester(model_MPR, pred_nls, device, criterion, Ns_range=[opt.Ns_min, opt.Ns_max], save_path=save_path)(val_loader)
     logger.info('Results: ' + ', '.join([str(item) for item in results]), root=save_path)
