@@ -18,7 +18,7 @@ def main(opt):
     device, pin_memory, num_workers = init_device(opt.seed, opt.cpu, opt.gpu, opt.cpu_affinity, save_path)
 
     # Create the data loader
-    _, val_loader = create_Env_dataloader(path='/home/zhizhen/MPC/data/'+f'Ns_{opt.Ns_max}/', 
+    _, val_loader = create_Env_dataloader(path='/home/zhizhen/MPC/data/'+f'Ns_M/', 
                                           batch_size=opt.batch_size, 
                                           num_workers=num_workers, 
                                           device=device,
@@ -26,13 +26,13 @@ def main(opt):
                                           noise_power=opt.noise)
     
     # Define model
-    pretrained = save_path + f'MPD_Ns{opt.Ns_max}/lath.pth'
+    pretrained = save_path + f'MPD_Ns{opt.Ns_max}_epochs{opt.epochs}/last.pth'
     model_MPD = init_model(pretrained, path_Num=opt.Ns_max, w=64, h=64, save_path=save_path)
     model_MPD.to(device)
 
     model_MPR = []
     for Ns in range(opt.Ns_min, opt.Ns_max + 1):
-        pretrained = save_path + f'MPR_Ns{Ns}/lath.pth'
+        pretrained = save_path + f'MPR_Ns{Ns}_epochs{opt.epochs}/last.pth'
         model = init_model(pretrained, path_Num=Ns, w=64, h=64, save_path=save_path)
         model.to(device)
         model_MPR.append(model)
@@ -46,10 +46,15 @@ def main(opt):
     # LDA train
     lda = LinearDiscriminantAnalysis(n_components=opt.Ns_max - opt.Ns_min)
     pred_paras_flat = pred_paras.reshape(pred_paras.shape[0], -1)
+    nls = nls.ravel()   
     lda.fit(pred_paras_flat, nls)
 
     # LDA forward
     pred_nls = lda.predict(pred_paras_flat)
+    
+    # Calculate accuracy
+    accuracy = (pred_nls == nls).sum() / len(nls)
+    logger.info(f'Prediction Accuracy: {accuracy:.4f}', root=save_path)
 
     # MPR forward
     results = MPRTester(model_MPR, pred_nls, device, criterion, Ns_range=[opt.Ns_min, opt.Ns_max], save_path=save_path)(val_loader)
