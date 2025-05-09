@@ -1,6 +1,7 @@
 import os
 import scipy.io as sio
 import torch
+import numpy
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset, DataLoader
 
@@ -56,6 +57,12 @@ class EnvDataset(Dataset):
         
         # HA = torch.cat((H,HM), dim=1)
 
+        Gain = matfile['Gain']
+        Gain = numpy.abs(Gain)
+        Gain = torch.tensor(Gain, dtype=torch.float32).view(
+            Gain.shape[0], self.Ns_max + 1, 1)
+        Gain = Gain[:,1:,:]
+
         Pos = matfile['P']
         Pos = torch.tensor(Pos, dtype=torch.float32).view(
             Pos.shape[0], self.Ns_max + 1, 2)
@@ -65,8 +72,13 @@ class EnvDataset(Dataset):
             Para.shape[0], self.Ns_max + 1, 2)
         Para = Para[:,1:,:]
         # Para = torch.cat([torch.zeros(Para.shape[:2]).unsqueeze(2), Para], dim=2)
+        # Add Gain
+        Para = torch.cat([Gain, Para], dim=2)
         # NOTE: Adjust for the delay. The dim 1 and 2 are delays and angles
-        Para[:,:,0] -= 1/self.nc    
+        Para[:,:,1] -= 1/self.nc    
+        # Sort according to Gain
+        sorted_indices = torch.argsort(Gain, dim=1, descending=True)
+        Para = torch.gather(Para, dim=1, index=sorted_indices.expand_as(Para))
         
         
         NL = matfile['NL']

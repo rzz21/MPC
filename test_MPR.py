@@ -12,7 +12,7 @@ from utils.statics import NMSE_evaluator
 from utils.metrics import AverageMeter, para2pos, cal_metric_pos
 
 def main(opt):
-    save_path = opt.root_dir + f'checkpoints/small_net/seed_{opt.seed}/test_MPD/MPD_Ns{opt.Ns}_epochs{opt.epochs}_batch_size{opt.batch_size}_lr{opt.lr}'
+    save_path = opt.root_dir + f'checkpoints/small_net_Gain/seed_{opt.seed}/test_MPD/MPD_Ns{opt.Ns}_epochs{opt.epochs}_batch_size{opt.batch_size}_lr{opt.lr}'
 
     logger.info('=> PyTorch Version: {}'.format(torch.__version__), root=save_path)
     logger.info(opt, root=save_path)

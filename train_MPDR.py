@@ -8,7 +8,7 @@ from utils import init_device, init_model, FakeLR, WarmUpCosineAnnealingLR
 from dataset import create_Env_dataloader
 
 def main(opt):
-    save_path = opt.root_dir + f'checkpoints/small_net/seed_{opt.seed}/{opt.mode}_Ns{opt.Ns}_epochs{opt.epochs}_batch_size{opt.batch_size}_lr{opt.lr}/'
+    save_path = opt.root_dir + f'checkpoints/small_net_Gain/seed_{opt.seed}/{opt.mode}_Ns{opt.Ns}_epochs{opt.epochs}_batch_size{opt.batch_size}_lr{opt.lr}/'
 
     logger.info('=> PyTorch Version: {}'.format(torch.__version__), root=save_path)
     logger.info(opt, root=save_path)
@@ -76,8 +76,8 @@ def parser_opt():
     parser.add_argument('--cpu', action='store_true', help='Disable GPU training')
     parser.add_argument('--cpu-affinity', type=str, default=None, help='CPU affinity, like "0xffff"')
     parser.add_argument('--scheduler', type=str, default='cosine', help='Learning rate scheduler')
-    parser.add_argument('--epochs', type=int, default=200, help='Number of total epochs to run')
-    parser.add_argument('--batch-size', type=int, default=8, help='Mini-batch size')
+    parser.add_argument('--epochs', type=int, default=100, help='Number of total epochs to run')
+    parser.add_argument('--batch-size', type=int, default=32, help='Mini-batch size')
     parser.add_argument('--workers', type=int, default=0, help='Number of data loading workers')
     parser.add_argument('--lr', type=float, default=2e-3, help='Initial learning rate')
     # parser.add_argument('--conf-thres', type=float, default=5e-1, help='confidence threshold')

@@ -39,7 +39,7 @@ def init_device(seed=None, cpu=None, gpu=None, affinity=None, save_path=None):
     return device, pin_memory, num_workers
 
 def init_model(pretrained, path_Num, w=64, h=64, save_path=None):
-    model = MPDR(c=2, w=w, h=w, param_num=2, path_Num=path_Num)
+    model = MPDR(c=2, w=w, h=w, param_num=3, path_Num=path_Num)
 
     if pretrained is not None:
         assert os.path.isfile(pretrained)
