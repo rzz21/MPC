@@ -8,7 +8,7 @@ from utils import init_device, init_model, FakeLR, WarmUpCosineAnnealingLR
 from dataset import create_Env_dataloader
 
 def main(opt):
-    save_path = opt.root_dir + f'checkpoints/small_net/seed_{opt.seed}/{opt.mode}_Ns{opt.Ns}_epochs{opt.epochs}/'
+    save_path = opt.root_dir + f'checkpoints/small_net/seed_{opt.seed}/{opt.mode}_Ns{opt.Ns}_epochs{opt.epochs}_batch_size{opt.batch_size}_lr{opt.lr}/'
 
     logger.info('=> PyTorch Version: {}'.format(torch.__version__), root=save_path)
     logger.info(opt, root=save_path)
@@ -36,7 +36,7 @@ def main(opt):
     criterion = nn.MSELoss().to(device)
 
     # Define optimizer and scheduler
-    lr_init = 1e-3 if opt.scheduler == 'const' else 2e-3
+    lr_init = 1e-3 if opt.scheduler == 'const' else opt.lr
     optimizer = torch.optim.Adam(model.parameters(), lr_init)
     if opt.scheduler == 'const':
         scheduler = FakeLR(optimizer=optimizer)
@@ -79,6 +79,7 @@ def parser_opt():
     parser.add_argument('--epochs', type=int, default=200, help='Number of total epochs to run')
     parser.add_argument('--batch-size', type=int, default=8, help='Mini-batch size')
     parser.add_argument('--workers', type=int, default=0, help='Number of data loading workers')
+    parser.add_argument('--lr', type=float, default=2e-3, help='Initial learning rate')
     # parser.add_argument('--conf-thres', type=float, default=5e-1, help='confidence threshold')
     # parser.add_argument('--rmse-thres', type=float, default=1, help='rmse threshold')
     # parser.add_argument('--out-thres', type=float, default=0, help='output threshold')
