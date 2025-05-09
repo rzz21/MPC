@@ -163,13 +163,13 @@ class AverageMeter(object):
         self.avg = self.sum / self.count
 
 
-    # def update(self, val, n=1):
-    #     if val.numel() == 0:
-    #         return
-    #     self.val = val
-    #     self.sum += val.sum()
-    #     self.count += val.numel()
-    #     self.avg = self.sum / self.count
+    def _update(self, val, n=1):
+        if val.numel() == 0:
+            return
+        self.val = val
+        self.sum += val.sum()
+        self.count += val.numel()
+        self.avg = self.sum / self.count
         
         # if isinstance(val, torch.Tensor) and val.ndim > 0:
         #     for v in val:

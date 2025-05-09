@@ -155,10 +155,10 @@ class MPRTester:
                 results_list.append(torch.stack((chamdis, f1score, precision, torch.sqrt(rmse.nanmean()))))
             
                 catch_list.append(not error)
-                iter_chamdis.update(chamdis)
-                iter_f1score.update(f1score)
-                iter_precision.update(precision)
-                iter_rmse.update(rmse)
+                iter_chamdis._update(chamdis)
+                iter_f1score._update(f1score)
+                iter_precision._update(precision)
+                iter_rmse._update(rmse)
                 rmse_avg = torch.sqrt(iter_rmse.avg) if isinstance(iter_rmse.avg, torch.Tensor) else math.sqrt(iter_rmse.avg)
                 mem = f'{torch.cuda.memory_reserved() / 1E9 if torch.cuda.is_available() else 0:.3g}G'
             

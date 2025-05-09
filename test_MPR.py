@@ -8,7 +8,7 @@ import os
 from utils import logger
 from utils import init_device, init_model, FakeLR, WarmUpCosineAnnealingLR
 from dataset import create_Env_dataloader
-from utils.statics import AverageMeter, NMSE_evaluator
+from utils.statics import NMSE_evaluator
 from utils.metrics import AverageMeter, para2pos, cal_metric_pos
 
 def main(opt):
@@ -36,7 +36,7 @@ def main(opt):
     criterion = nn.MSELoss().to(device)
     
     # MPR forward
-    results = MPRTester(model_MPR,  device, criterion, opt.Ns, save_path=save_path)(train_loader)
+    results = MPRTester(model_MPR,  device, criterion, opt.Ns, save_path=save_path)(val_loader)
     logger.info('Results: ' + ', '.join([str(item) for item in results]), root=save_path)
 
 class MPRTester:
@@ -68,7 +68,7 @@ class MPRTester:
 
         for batch_idx, (data, label_para, pos, nl) in enumerate(data_loader):
             data, label_para = data.to(self.device), label_para.to(self.device)
-            _, nc, height, width = data.shape
+            _, _, height, width = data.shape
             pred_para = self.model(data)
             
             # calculate pos
@@ -79,6 +79,10 @@ class MPRTester:
                 label_para_sample = label_para[sample_idx].unsqueeze(0)
                 label_para_sample = label_para_sample[:, :nl_sample, :]
                 pred_para_sample = pred_para[sample_idx]
+
+                # process pred_para
+                pred_para_sample[:, 1] = pred_para_sample[:, 1] + (1 / height)
+                pred_para_sample = pred_para_sample * height
 
                 # calculate pos
                 pos_user_sample = pos_sample[0, :]
@@ -124,10 +128,10 @@ class MPRTester:
                 results_list.append(torch.stack((chamdis, f1score, precision, torch.sqrt(rmse.nanmean()))))
             
                 catch_list.append(not error)
-                iter_chamdis.update(chamdis)
-                iter_f1score.update(f1score)
-                iter_precision.update(precision)
-                iter_rmse.update(rmse)
+                iter_chamdis._update(chamdis)
+                iter_f1score._update(f1score)
+                iter_precision._update(precision)
+                iter_rmse._update(rmse)
                 rmse_avg = torch.sqrt(iter_rmse.avg) if isinstance(iter_rmse.avg, torch.Tensor) else math.sqrt(iter_rmse.avg)
 
         logger.info(f"For all cases:", root=self.save_path)
