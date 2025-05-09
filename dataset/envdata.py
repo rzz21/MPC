@@ -66,7 +66,7 @@ class EnvDataset(Dataset):
         Para = Para[:,1:,:]
         # Para = torch.cat([torch.zeros(Para.shape[:2]).unsqueeze(2), Para], dim=2)
         # NOTE: Adjust for the delay. The dim 1 and 2 are delays and angles
-        Para[:,:,1] -= 1/self.nc    
+        Para[:,:,0] -= 1/self.nc    
         
         
         NL = matfile['NL']

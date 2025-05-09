@@ -109,12 +109,16 @@ class MPRTester:
                 # decide which model to use
                 Ns = self.pred_nls[total_idx]
                 model_idx = Ns - self.Ns_range[0]
-                pred_para_sample = self.model_MPR[model_idx](data_sample)
+                pred_para_sample = self.model_MPR[model_idx](data_sample).squeeze(0)
+
+                # process pred_para
+                pred_para_sample[:, 0] = pred_para_sample[:, 0] + (1 / height)
+                pred_para_sample = pred_para_sample * height
 
                 # calculate pos
                 pos_user_sample = pos_sample[0, :]
                 label_pos_sample = pos_sample[1: nl_sample + 1, :]
-                pred_pos_sample = para2pos(pred_para_sample.squeeze(0), pos_user_sample)
+                pred_pos_sample = para2pos(pred_para_sample, pos_user_sample)
                 chamdis, f1score, precision, error, rmse = cal_metric_pos(label_pos_sample, pred_pos_sample, threshold=1, rmse_thres=rmse_thres)
 
                 # debug 

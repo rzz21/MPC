@@ -81,7 +81,7 @@ class MPRTester:
                 pred_para_sample = pred_para[sample_idx]
 
                 # process pred_para
-                pred_para_sample[:, 1] = pred_para_sample[:, 1] + (1 / height)
+                pred_para_sample[:, 0] = pred_para_sample[:, 0] + (1 / height)
                 pred_para_sample = pred_para_sample * height
 
                 # calculate pos
