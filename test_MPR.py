@@ -36,7 +36,7 @@ def main(opt):
     criterion = nn.MSELoss().to(device)
     
     # MPR forward
-    results = MPRTester(model_MPR,  device, criterion, opt.Ns, save_path=save_path)(val_loader)
+    results = MPRTester(model_MPR,  device, criterion, opt.Ns, save_path=save_path)(train_loader)
     logger.info('Results: ' + ', '.join([str(item) for item in results]), root=save_path)
 
 class MPRTester:
@@ -77,8 +77,8 @@ class MPRTester:
                 data_sample = data[sample_idx].unsqueeze(0)
                 pos_sample = pos[sample_idx].to(self.device)
                 label_para_sample = label_para[sample_idx].unsqueeze(0)
-                label_para_sample = label_para_sample[:, :nl_sample, :]
-                pred_para_sample = pred_para[sample_idx]
+                label_para_sample = label_para_sample[:, :nl_sample, 1:]
+                pred_para_sample = pred_para[sample_idx, :, 1:]
 
                 # process pred_para
                 pred_para_sample[:, 0] = pred_para_sample[:, 0] + (1 / height)
@@ -92,7 +92,6 @@ class MPRTester:
 
                 # debug 
                 plot_error = False
-                label_para_sample = label_para_sample * torch.tensor((height, width), device=self.device) 
                 if error and chamdis > 300 and plot_error:
                     color = ['#FF0000', '#FFFF00', '#D2691E', '#008000', '#FFA500', '#4B0082', '#800080', '#00FFFF', '#000000', '#7FFF00', '#D19275', '#DAA520', '#FF69B4']
                     import matplotlib.pyplot as plt
@@ -100,6 +99,7 @@ class MPRTester:
                     image = data_sample[0, ...].cpu().numpy()
                     plt.imshow(image[-1, ...])
                     pxy = pred_para_sample[0, :,:2].cpu().numpy()
+                    label_para_sample = label_para_sample * torch.tensor((height, width), device=self.device) 
                     lxy = label_para_sample[0, ...].detach().cpu().numpy()
                     px, py = pxy.T
                     lx, ly = lxy.T
@@ -160,13 +160,13 @@ class MPRTester:
 def parse_opt():
     parser = argparse.ArgumentParser()
     parser.add_argument('--root-dir', type=str, default='/home/zhizhen/MPC/Baseline_MPC/', help='root directory')
-    parser.add_argument('--pretrained', type=str, default='/home/zhizhen/MPC/Baseline_MPC/checkpoints/small_net/seed_2026/MPD_Ns5_epochs100_batch_size32_lr0.002/last.pth', help='Path to pre-trained model')
+    parser.add_argument('--pretrained', type=str, default='/home/zhizhen/MPC/Baseline_MPC/checkpoints/small_net_Gain/seed_2025/MPD_Ns5_epochs100_batch_size8_lr0.002/last.pth', help='Path to pre-trained model')
     parser.add_argument('--resume', type=str, default=None, help='Path to resume training from checkpoint')
-    parser.add_argument('--seed', type=int, default=2026, help='Random seed for initialization')
+    parser.add_argument('--seed', type=int, default=2025, help='Random seed for initialization')
     parser.add_argument('--gpu', type=int, default=None, help='GPU ID to use')
     parser.add_argument('--cpu', action='store_true', help='Disable GPU training')
     parser.add_argument('--cpu-affinity', type=str, default=None, help='CPU affinity, like "0xffff"')
-    parser.add_argument('--batch-size', type=int, default=32, help='Mini-batch size')
+    parser.add_argument('--batch-size', type=int, default=8, help='Mini-batch size')
     parser.add_argument('--lr', type=float, default=2e-3, help='Initial learning rate')
     parser.add_argument('--workers', type=int, default=0, help='Number of data loading workers')
     parser.add_argument('--epochs', type=int, default=100, help='Number of epochs to train')

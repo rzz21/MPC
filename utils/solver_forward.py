@@ -104,12 +104,12 @@ class MPRTester:
                 data_sample = data[sample_idx].unsqueeze(0).to(self.device)
                 pos_sample = pos[sample_idx].to(self.device)
                 label_para_sample = label_para[sample_idx].unsqueeze(0).to(self.device)
-                label_para_sample = label_para_sample[:, :nl_sample, :]
+                label_para_sample = label_para_sample[:, :nl_sample, 1:]
 
                 # decide which model to use
                 Ns = self.pred_nls[total_idx]
                 model_idx = Ns - self.Ns_range[0]
-                pred_para_sample = self.model_MPR[model_idx](data_sample).squeeze(0)
+                pred_para_sample = self.model_MPR[model_idx](data_sample)[:, :, 1:].squeeze(0)
 
                 # process pred_para
                 pred_para_sample[:, 0] = pred_para_sample[:, 0] + (1 / height)

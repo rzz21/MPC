@@ -9,7 +9,7 @@ from dataset import create_Env_dataloader
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 def main(opt):
-    save_path = opt.root_dir + f'checkpoints/small_net_Gain/seed_{opt.seed}/test_MPDR/'
+    save_path = opt.root_dir + f'checkpoints/small_net_Gain/seed_{opt.seed}/'
 
     logger.info('=> PyTorch Version: {}'.format(torch.__version__), root=save_path)
     logger.info(opt, root=save_path)
@@ -18,7 +18,7 @@ def main(opt):
     device, pin_memory, num_workers = init_device(opt.seed, opt.cpu, opt.gpu, opt.cpu_affinity, save_path)
 
     # Create the data loader
-    _, val_loader = create_Env_dataloader(path='/home/zhizhen/MPC/data/'+f'Ns_M/', 
+    train_loader, val_loader = create_Env_dataloader(path='/home/zhizhen/MPC/data/'+f'Ns_M/', 
                                           batch_size=opt.batch_size, 
                                           num_workers=num_workers, 
                                           device=device,
@@ -26,13 +26,13 @@ def main(opt):
                                           noise_power=opt.noise)
     
     # Define model
-    pretrained = save_path + f'MPC_Ns{opt.Ns_max}_epochs{opt.epochs}/last.pth'
+    pretrained = save_path + f'MPC_Ns{opt.Ns_max}_epochs{opt.epochs}_batch_size{opt.batch_size}_lr{opt.lr}/last.pth'
     model_MPD = init_model(pretrained, path_Num=opt.Ns_max, w=64, h=64, save_path=save_path)
     model_MPD.to(device)
 
     model_MPR = []
     for Ns in range(opt.Ns_min, opt.Ns_max + 1):
-        pretrained = save_path + f'MPD_Ns{Ns}_epochs{opt.epochs}/last.pth'
+        pretrained = save_path + f'MPD_Ns{Ns}_epochs{opt.epochs}_batch_size{opt.batch_size}_lr{opt.lr}/last.pth'
         model = init_model(pretrained, path_Num=Ns, w=64, h=64, save_path=save_path)
         model.to(device)
         model_MPR.append(model)
@@ -41,7 +41,7 @@ def main(opt):
     criterion = nn.MSELoss().to(device)
     
     # MPD forward
-    loss, nmse, pred_paras, nls = MPDTester(model_MPD, device, criterion, save_path=save_path)(val_loader)
+    loss, nmse, pred_paras, nls = MPDTester(model_MPD, device, criterion, save_path=save_path)(train_loader)
 
     # LDA train
     lda = LinearDiscriminantAnalysis(n_components=opt.Ns_max - opt.Ns_min)
@@ -71,6 +71,7 @@ def parse_opt():
     parser.add_argument('--cpu', action='store_true', help='Disable GPU training')
     parser.add_argument('--cpu-affinity', type=str, default=None, help='CPU affinity, like "0xffff"')
     parser.add_argument('--batch-size', type=int, default=8, help='Mini-batch size')
+    parser.add_argument('--lr', type=float, default=2e-3, help='Initial learning rate')
     parser.add_argument('--workers', type=int, default=0, help='Number of data loading workers')
     parser.add_argument('--epochs', type=int, default=100, help='Number of epochs to train')
     parser.add_argument('--rmse-thres', type=float, default=1, help='rmse threshold')
